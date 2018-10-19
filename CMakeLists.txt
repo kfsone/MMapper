@@ -1,9 +1,35 @@
-﻿# CMakeList.txt : CMake project for MMapper, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
+CMAKE_MINIMUM_REQUIRED (VERSION 3.0)
+PROJECT (MMapper)
 
-# Add source to this project's executable.
-add_executable (MMapper "MMapper.cpp" "MMapper.h")
+# Requires C++14 or higher.
+SET(CXX_STANDARD 14)
 
-# TODO: Add tests and install targets if needed.
+OPTION(MMAPPER_BUILD_SAMPLES "Build MMapper sample programs" ON)
+
+SET(MMAPPER_LIB_SRCS
+
+	mmapper.cpp
+		mmapper.h
+		mmapper_platform.h
+		internal_includes.h
+
+	filehandle.cpp
+		filehandle.h
+		mmapper_platform.h
+		internal_includes.h
+)
+
+SET(MMAPPER_INCLUDE_PATHS
+
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+ADD_LIBRARY(
+	mmapper
+
+	${MMAPPER_LIB_SRCS}
+)
+
+IF(MMAPPER_BUILD_SAMPLES)
+	ADD_SUBDIRECTORY(Samples)
+ENDIF()
