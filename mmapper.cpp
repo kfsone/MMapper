@@ -70,7 +70,7 @@ namespace KFS
 		unmapFile();
 
 		// New filename.	
-		m_filename = _populateFilename(filename_, dirname_);
+		m_filename = _populateFilename(dirname_, filename_);
 
 		FileHandle fh{ m_filename };
 		if (!fh.isValid())
@@ -112,8 +112,11 @@ namespace KFS
 				  MAP_FILE 		// Compatibility flag, not really required.
 				| MAP_SHARED	// Share buffers with any other mmappers of this file.
 				;
+
+		// We ask the OS to give us a byte more than the file requires so that
+		// we can be sure we have a null-byte after the real data.
 		void* const ptr = mmap(NULL, size + 1, PROT_READ, flags, fh, 0);
-		constexpr void* MapFailure = MAP_FAILED;
+		static const void* MapFailure = MAP_FAILED;
 	#endif
 
 		if (ptr == MapFailure)
@@ -128,10 +131,10 @@ namespace KFS
 		// buffers. There may not be any data there, and the first access may
 		// result in a page fault (the OS has to actually fetch data, akin to the
 		// first call of read()).
-		m_basePtr = static_cast<void*>(ptr);
+		m_basePtr = static_cast<const void*>(ptr);
 
 		// For convenience, pre-calculate where the end of the data is.
-		m_endPtr = static_cast<const char*>(ptr) + size;
+		m_endPtr = begin() + size;
 
 		// All the file handles we have open at this point are now safe to close.
 
@@ -155,8 +158,9 @@ namespace KFS
 	#if MMAPPER_API == MMAPPER_WIN32
 		UnmapViewOfFile(m_basePtr);
 	#else
-		size_t size = m_endPtr - m_basePtr + 1;
-		munmap(m_basePtr, size);
+		// We asked for an extra byte when we mmap()d, so we have to
+		// include it when we unmap.
+		munmap(const_cast<void*>(m_basePtr), size() + 1);
 	#endif
 
 		m_filename.clear();

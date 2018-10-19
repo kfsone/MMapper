@@ -9,10 +9,12 @@
 # include <sys/stat.h>
 # include <errno.h>
 # include <fcntl.h>
+# include <unistd.h>
 
 #elif MMAPPER_API == MMAPPER_WIN32
 
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 # include <windows.h>
 
 #else

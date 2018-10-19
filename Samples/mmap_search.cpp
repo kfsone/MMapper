@@ -44,7 +44,7 @@ int	main(int argc, const char* const argv[])
 
 			// We can use good-old strstr because MappedFile ensures a
 			// terminating \0 at the end of the allocation.
-			const char* begin = static_cast<const char*>(mf.begin());
+			const char* begin = mf.begin();
 			const char* const location = strstr(begin, needle);
 			if (location != NULL && *location != 0)
 			{

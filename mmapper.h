@@ -39,7 +39,7 @@ namespace KFS
 		filename_str_t	m_filename{};
 
 		//! Where the file contents actually starts.
-		void*			m_basePtr{ nullptr };
+		const void*		m_basePtr{ nullptr };
 
 		//! For convenience, where the file would end.
 		const char*		m_endPtr{ nullptr };
@@ -90,12 +90,14 @@ namespace KFS
 		const filename_str_t& filename() const noexcept { return m_filename; }
 
 		//! Get a pointer to the base of the memory view, or NULL.
-		const void* begin() const noexcept { return m_basePtr; }
+		template<typename T=char>
+		const T* begin() const noexcept { return reinterpret_cast<const T*>(m_basePtr); }
 
 		//! Pointer to EOF (last byte + 1
-		const char* end()   const noexcept { return m_endPtr; }
+		template<typename T=char>
+		const T* end()  const noexcept  { return reinterpret_cast<const T*>(m_endPtr); }
 
-		size_t size() const noexcept { return end() - static_cast<const char*>(begin()); }
+		size_t size() const noexcept { return end() - begin(); }
 	};
 
 }

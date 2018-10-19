@@ -1,7 +1,7 @@
 # Build the samples for MMapper
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
 
-PROJECT("MMapperSamples")
+MESSAGE(STATUS "Samples")
 
 INCLUDE_DIRECTORIES(${MMAPPER_INCLUDE_PATHS})
 
@@ -13,12 +13,19 @@ ADD_EXECUTABLE(
 )
 TARGET_LINK_LIBRARIES(mmap_search mmapper)
 
-# Linux et al get a benchmark example too.
-IF (!WIN32)
-	ADD_EXECUTABLE(
-		linux_benchmark
+# A small tool that compares read/mmap by
+# performing checksums on files.
+ADD_EXECUTABLE(
+	compare_read_mmap
 
-		linux_benchmark.cpp
-	)
-	TARGET_LINK_LIBRARIES(live_benchmark mmapper)
-ENDIF ()
+	compare_read_mmap.cpp
+)
+SET_TARGET_PROPERTIES(
+	compare_read_mmap
+
+	PROPERTIES
+
+	CXX_STANDARD 17
+	CXX_STANDARD_REQUIRED ON
+)
+TARGET_LINK_LIBRARIES(compare_read_mmap mmapper)

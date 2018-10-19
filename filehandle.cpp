@@ -2,9 +2,15 @@
 // Author: Oliver "kfsone" Smith 2018 <oliver@kfs.org>
 // Redistribution and re-use fully permitted contingent on inclusion of these 3 lines in copied- or derived- works.
 
+
 #include "filehandle.h"
 #include "internal_includes.h"
 
+#include <utility>
+
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 
 namespace KFS
 {
@@ -18,7 +24,7 @@ namespace KFS
 		// Windows implementation.
 		m_fd = CreateFile(filename_.c_str(), FILE_GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
 #else
-		m_fd = open(m_filename.c_str(), O_RDONLY);
+		m_fd = open(filename_.c_str(), O_RDONLY | O_BINARY);
 #endif
 	}
 
@@ -61,15 +67,15 @@ namespace KFS
 			return;
 		}
 
-		// Call the platform-specific close function.
+		// Invalidate the handle but keep the value so we can close it.
+		file_handle_t fd = std::exchange(m_fd, INVALID_HANDLE_VALUE);
+
+		// Close the descriptor we had.
 #if MMAPPER_API == MMAPPER_WIN32
 		CloseHandle(m_fd);
 #else
-		close(m_fd);
+		::close(m_fd);
 #endif
-
-		// Invalidate the handle.
-		m_fd = INVALID_HANDLE_VALUE;
 	}
 
 
@@ -106,7 +112,7 @@ namespace KFS
 
 		// Use fstat to quickly obtain the file size.
 		struct stat stats;
-		const int sr = fstat(fd, &stats);
+		const int sr = fstat(m_fd, &stats);
 		if (sr < 0)
 		{
 	#ifndef MMAPPER_NO_THROW

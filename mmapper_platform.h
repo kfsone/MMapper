@@ -16,6 +16,7 @@
 // Platform includes
 #if (defined(WIN32) || defined(_MSC_VER)) && !defined(__CYGWIN__)
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <Windows.h>
 #else
 #include <unistd.h>
@@ -49,7 +50,7 @@ namespace KFS
 		#define MMAPPER_USE_UNICODE
 	#endif
 
-	#define	MMAPER_PATH_SEP    '\\'
+	#define	MMAPPER_PATH_SEP   '\\'
 
 #elif defined(__GNUC__) || defined(__clang__) || (defined(__APPLE__) && defined(__MACH__))
 
@@ -73,7 +74,7 @@ namespace KFS
 #else
 	using filename_char_t = char;
 #endif
-	constexpr filename_char_t c_PathSeparator{ MMAPER_PATH_SEP };
+	constexpr filename_char_t c_PathSeparator{ MMAPPER_PATH_SEP };
 
 #if MMAPPER_API != MMAPPER_WIN32
 	// At time of writing, Linux/BSD kernels don't provide widecharacter open()s.
